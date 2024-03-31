@@ -63,7 +63,7 @@ def is_on_segment(pt: tuple, p1: tuple, p2: tuple, tolerance: float = .1) -> boo
 		first point of the segment
 	p2: tuple
 		second point of the segment
-	tolerance: float
+	tolerance: float, optional (default=.1)
 		tolerance
 		
 	Returns:

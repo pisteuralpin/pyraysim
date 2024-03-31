@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Project modules
-from systems import Screen, Miror
-from photons import Photon
-import photons as t
+from src.systems import Screen, Miror
+from src.photons import Photon
+import src.photons as t
 
 plt.ion()												# Interactive mode on
 

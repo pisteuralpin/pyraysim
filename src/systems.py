@@ -1,4 +1,5 @@
 import numpy as np
+import src.geometry as geo
 
 class Miror:
 	"""Mirror class.
@@ -100,4 +101,3 @@ class Screen:
 			photon object
 		"""
 		photon.stopped = True
-

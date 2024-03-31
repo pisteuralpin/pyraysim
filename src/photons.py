@@ -1,6 +1,6 @@
 import numpy as np
 
-import geometry as geo
+import src.geometry as geo
 	
 def has_reached_sys(photon: any, systems: any) -> bool:
 	"""Check if the photon has reached a system.
