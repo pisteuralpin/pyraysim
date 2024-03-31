@@ -3,8 +3,8 @@ import numpy as np
 
 # Project modules
 from systems import Screen, Miror
-from trajectories import Photon
-import trajectories as t
+from photons import Photon
+import photons as t
 
 plt.ion()												# Interactive mode on
 
