@@ -1,8 +1,8 @@
 import numpy as np
 
-import src.geometry as geo
+import raysim.geometry as geo
 	
-def has_reached_sys(photon: any, systems: any) -> bool:
+def has_reached_sys(photon: any, systems: list[any]) -> bool:
 	"""Check if the photon has reached a system.
 
 	Parameters:
@@ -22,7 +22,7 @@ def has_reached_sys(photon: any, systems: any) -> bool:
 			return True
 	return False
 
-def touched_sys(photon: any, systems: any) -> any:
+def touched_sys(photon: any, systems: list[any]) -> any:
 	"""Return the system that the photon has reached.
 
 	Parameters:
@@ -44,8 +44,7 @@ def touched_sys(photon: any, systems: any) -> any:
 
 
 class Photon:
-	"""
-	Photon class.
+	"""Photon class.
 	
 	Attributes:
 	-----------
@@ -65,8 +64,14 @@ class Photon:
 		photon status
 	touching: any
 		touched system
+
+	Methods:
+	--------
+	move()
+		Move the photon in the direction of its direction.
 	"""
-	def __init__(self, pos: tuple, dir: float, dx: float, n: float = 1):
+	def __init__(self, pos: tuple, dir: float, dx: float,
+		n: float = 1, intensity: float = 1, touching: any = None):
 		"""Initialize a photon object.
 
 		Parameters:
@@ -86,8 +91,9 @@ class Photon:
 		self.positions = [pos]
 		self.directions = [dir]
 		self.n = n
+		self.intensity = intensity
 		self.stopped = False
-		self.touching = None
+		self.touching = touching
 	
 	def move(self):
 		"""Move the photon in the direction of its direction.

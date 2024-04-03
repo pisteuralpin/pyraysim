@@ -1,7 +1,7 @@
 import numpy as np
 
 	
-def distance(a: tuple, b: float) -> float:
+def distance(a: tuple, b: tuple) -> float:
 	"""Calculate the distance between two points.
 
 	Parameters:
@@ -15,7 +15,7 @@ def distance(a: tuple, b: float) -> float:
 	--------
 	float, distance
 	"""
-	return np.sqrt(np.sum((b-a)**2, axis=1))
+	return np.sqrt(np.sum((np.array(a) - np.array(b)) ** 2, axis=-1))
 
 def new_pos(dir: float, pos: tuple, dx: float) -> tuple:
 	"""Calculate the new position of a point.
@@ -70,7 +70,9 @@ def is_on_segment(pt: tuple, p1: tuple, p2: tuple, tolerance: float = .1) -> boo
 	--------
 	bool, True if the point is on the segment, False otherwise
 	"""
-	return distance(np.array(pt), np.array(p1)) + distance(np.array(pt), np.array(p2)) - distance(np.array(p1), np.array(p2)) < tolerance
+	return distance(np.array(pt), np.array(p1)) \
+		+ distance(np.array(pt), np.array(p2)) \
+		- distance(np.array(p1), np.array(p2)) < tolerance
 
 def is_in(pos: tuple, box: tuple) -> bool:
 	"""Check if a point is inside a box.
@@ -87,3 +89,46 @@ def is_in(pos: tuple, box: tuple) -> bool:
 	bool, True if the point is inside the box, False otherwise
 	"""
 	return box[0] < pos[0] < box[2] and box[1] < pos[1] < box[3]
+
+
+def normalize_angle_negpi_pi(angle: float) -> float:
+	"""Reduce an angle to the interval [-pi, pi].
+
+	Parameters:
+	-----------
+	angle: float
+		angle
+
+	Returns:
+	--------
+	float, reduced angle
+	"""
+	return (angle + np.pi) % (2 * np.pi) - np.pi
+
+def normalize_angle_0_2pi(angle: float) -> float:
+	"""Reduce an angle to the interval [0, 2pi].
+
+	Parameters:
+	-----------
+	angle: float
+		angle
+
+	Returns:
+	--------
+	float, reduced angle
+	"""
+	return angle % (2 * np.pi)
+
+def normalize_angle_negpi2_pi2(angle: float) -> float:
+	"""Reduce an angle to the interval [-pi/2, pi/2].
+
+	Parameters:
+	-----------
+	angle: float
+		angle
+
+	Returns:
+	--------
+	float, reduced angle
+	"""
+	return (angle + np.pi/2) % np.pi - np.pi/2
