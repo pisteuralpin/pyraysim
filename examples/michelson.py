@@ -27,7 +27,7 @@ sim.simulate(rays, systems, playground, dx = dx)
 
 for p in rays:
 	plt.plot(np.array(p.positions)[:,0], np.array(p.positions)[:,1], 
-		color=[1.0, 0.78, 0.0, p.intensity])		# Plot ray
+		color= list(ph.rgb_to_matplotlib(p.color)) + [p.intensity])	# Plot ray
 
 
 # Plot systems
