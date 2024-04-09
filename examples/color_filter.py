@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 # Project modules
-from raysim.systems import Screen, Mirror
+from raysim.systems import Filter
 from raysim.photons import Photon
 import raysim.photons as ph
 import raysim.simulation as sim
@@ -20,24 +20,23 @@ step_time = time.perf_counter()
 playground = (-20, -15, 20, 15)							# Playground limits
 dx = .01												# Step size
 
-source = (-10, 0)										# Source position
 rays = [												# Set rays
-	Photon(source, .1, dx)
+	Photon((-10, 4.5-.5*i), 0, dx, wavelength=380 + 20*i, intensity=1)
+	for i in range(20)
 ]
 
 systems = [												# Set systems
-	Mirror((0, 0), 10, rot = 3*np.pi/4, reflexion = 0.5),
-	Mirror((5, 0), 10, 0),
-	Mirror((0, 7), 10, np.pi/2),
+	Filter((10, 0), 10, wavelenth=500, bandwidth=50),
+	Filter((5, 0), 10, wavelenth=475, bandwidth=150),
 ]
 
+print("--- Color Filter on rainbow ---")
+print("Source position: x = -10")
+print("First filter: 500nm +/- 25nm")
+print("Second filter: 475nm +/- 75nm")
+print("-------------------------------")
+
 plt.figure()
-
-print("--- Michelson Interferometer ---")
-print("Source position:", source)
-print("d = 2")
-print("--------------------------------")
-
 
 print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
@@ -61,7 +60,7 @@ for p in rays:
 	plt.plot(np.array(p.positions)[:,0], np.array(p.positions)[:,1], 
 		color= col.rbg_to_hex(p.color, p.intensity))	# Plot ray
 	
-print(f"\t✔ {len(rays)} rays plotted.")
+print(f"\t {len(rays)} rays plotted.")
 
 # Plot systems
 for s in systems:
@@ -70,9 +69,8 @@ for s in systems:
 		[s.pos[1] - np.cos(s.rot)*s.height/2, s.pos[1] + np.cos(s.rot)*s.height/2],
 		color=s.color, linestyle=s.style, linewidth=3)
 	
-print(f"\t✔ {len(systems)} systems plotted.")
+print(f"\t {len(systems)} systems plotted.")
 
-plt.plot(source[0], source[1], '*')						# Plot source
 
 plt.axis('equal')										# Equal aspect ratio
 plt.grid()												# Grid on
@@ -89,4 +87,4 @@ print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
 
 print(f"✅ Simulation completed in {time.perf_counter() - start_time:.2f}s.")
 
-plt.show()									# Show plot
+plt.show()												# Show plot
