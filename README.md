@@ -54,5 +54,5 @@ for s in systems:
 plt.axis('equal')
 plt.show()
 ```
-Result:
-<br/><img src="./docs/img/example.png?raw=True" style="display: block; height: 20rem;" />
+#### Result:
+> <br/><img src="./docs/img/example.png?raw=True" style="display: block; height: 20rem;" />
