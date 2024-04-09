@@ -2,7 +2,7 @@ import numpy as np
 import copy
 
 import raysim.geometry as geo
-import raysim.photons as ph
+import raysim.photon as ph
 import raysim.color as col
 
 class Mirror:
@@ -182,7 +182,7 @@ class Filter:
 	"""
 
 	def __init__(self, pos: tuple, height: float, rot: float = 0,
-		wavelenth: float = 600, bandwidth: float = 50):
+		wavelength: float = 600, bandwidth: float = 50):
 		"""Initialize a filter object.
 
 		Parameters:
@@ -202,10 +202,10 @@ class Filter:
 		self.height = height
 		self.rot = rot
 
-		self.color = col.rbg_to_hex(col.wavelength_to_color(wavelenth))
+		self.color = col.rbg_to_hex(col.wavelength_to_color(wavelength))
 		self.style = 'dashed'
 
-		self.wavelength = wavelenth
+		self.wavelength = wavelength
 		self.bandwidth = bandwidth
 
 		self.hitbox = np.linspace(

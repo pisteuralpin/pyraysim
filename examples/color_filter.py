@@ -3,10 +3,10 @@ import numpy as np
 import time
 
 # Project modules
+from raysim import simulate
 from raysim.systems import Filter
-from raysim.photons import Photon
-import raysim.photons as ph
-import raysim.simulation as sim
+from raysim.photon import Photon
+import raysim.photon as ph
 import raysim.color as col
 
 start_time = time.perf_counter()
@@ -17,7 +17,7 @@ start_time = time.perf_counter()
 
 step_time = time.perf_counter()
 
-playground = (-20, -15, 20, 15)							# Playground limits
+playground = (-10, -10, 15, 10)							# Playground limits
 dx = .01												# Step size
 
 rays = [												# Set rays
@@ -26,14 +26,17 @@ rays = [												# Set rays
 ]
 
 systems = [												# Set systems
-	Filter((10, 0), 10, wavelenth=500, bandwidth=50),
-	Filter((5, 0), 10, wavelenth=475, bandwidth=150),
+	Filter((0, 2.5), 5, wavelength=475, bandwidth=150),
+	Filter((5, 2.5), 5, wavelength=500, bandwidth=50),
+	Filter((0, -2.5), 5, wavelength=700, bandwidth=150),
+	Filter((5, -2.5), 5, wavelength=725, bandwidth=50),
 ]
 
-print("--- Color Filter on rainbow ---")
+print("--- Color Filters on rainbow ---")
 print("Source position: x = -10")
-print("First filter: 500nm +/- 25nm")
-print("Second filter: 475nm +/- 75nm")
+print("Filters:")
+for s in systems:
+	print(f"   - {s.wavelength}nm ± {s.bandwidth/2}nm")
 print("-------------------------------")
 
 plt.figure()
@@ -46,7 +49,7 @@ print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
 step_time = time.perf_counter()
 
-sim.simulate(rays, systems, playground, dx = dx)
+simulate(rays, systems, playground, dx = dx)
 
 print(f"✔ Simulation completed in {time.perf_counter() - step_time:.2f}s.")
 
@@ -59,8 +62,6 @@ step_time = time.perf_counter()
 for p in rays:
 	plt.plot(np.array(p.positions)[:,0], np.array(p.positions)[:,1], 
 		color= col.rbg_to_hex(p.color, p.intensity))	# Plot ray
-	
-print(f"\t {len(rays)} rays plotted.")
 
 # Plot systems
 for s in systems:
@@ -68,9 +69,8 @@ for s in systems:
 		[s.pos[0] + np.sin(s.rot)*s.height/2, s.pos[0] - np.sin(s.rot)*s.height/2],
 		[s.pos[1] - np.cos(s.rot)*s.height/2, s.pos[1] + np.cos(s.rot)*s.height/2],
 		color=s.color, linestyle=s.style, linewidth=3)
-	
-print(f"\t {len(systems)} systems plotted.")
 
+plt.title("Color Filters on rainbow")
 
 plt.axis('equal')										# Equal aspect ratio
 plt.grid()												# Grid on
@@ -80,6 +80,8 @@ plt.xticks(np.arange(playground[0], playground[2]+1, 5))	# Set x ticks
 plt.yticks(np.arange(playground[1], playground[3]+1, 5))	# Set y ticks
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
+print(f"   {len(rays)} rays plotted.")
+print(f"   {len(systems)} systems plotted.")
 
 # ---------------------------------------------------------------------------- #
 #                             End of the simulation                            #

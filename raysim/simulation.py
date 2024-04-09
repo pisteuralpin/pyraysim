@@ -1,9 +1,10 @@
-import raysim.photons as ph
+import raysim.photon as ph
 import raysim.geometry as geo
 
 def simulate(rays, systems, playground, max_iterations = 10000, dx = 0.01):
 	# Simulate rays and calculate interactions
 	for p in rays:
+		p.dx = dx
 		while not p.stopped and len(p.positions) < max_iterations:
 			p.move()
 			if ph.has_reached_sys(p, systems) and p.touching == None:
