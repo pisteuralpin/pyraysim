@@ -11,9 +11,9 @@ Rays simulation in python.
 
 ## Examples
 - Michelson interferometer
-  ![Michelson interferometer]("docs/img/michelson.png?raw=True")
+  <br/><img src="./docs/img/michelson.png?raw=True" style="display: block; height: 15rem;" />
 - Color filter
-  ![Color filter]("docs/img/color_filter.png?raw=True")
+  <br/><img src="./docs/img/color_filter.png?raw=True" style="display: block; height: 15rem;" />
 
 ## Usage
 ```python
@@ -55,4 +55,4 @@ plt.axis('equal')
 plt.show()
 ```
 Result:
-![Result]("docs/img/example.png?raw=True")
+<br/><img src="./docs/img/example.png?raw=True" style="display: block; height: 20rem;" />
