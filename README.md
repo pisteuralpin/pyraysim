@@ -11,9 +11,9 @@ Rays simulation in python.
 
 ## Examples
 - Michelson interferometer
-  ![Michelson interferometer]("https://github.com/pisteuralpin/pyraysim/blob/main/docs/img/michelson.png")
+  ![Michelson interferometer]("https://raw.githubusercontent.com/pisteuralpin/pyraysim/main/docs/img/michelson.png")
 - Color filter
-  ![Color filter]("https://github.com/pisteuralpin/pyraysim/blob/main/docs/img/color_filter.png")
+  ![Color filter]("https://raw.githubusercontent.com/pisteuralpin/pyraysim/main/docs/img/color_filter.png")
 
 ## Usage
 ```python
@@ -55,4 +55,4 @@ plt.axis('equal')
 plt.show()
 ```
 Result:
-![Result]("https://github.com/pisteuralpin/pyraysim/blob/main/docs/img/example.png")
+![Result]("https://raw.githubusercontent.com/pisteuralpin/pyraysim/main/docs/img/example.png")
