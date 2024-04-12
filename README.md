@@ -1,6 +1,11 @@
 # pyraysim
 Rays simulation in python.
 
+- [pyraysim](#pyraysim)
+  - [Systems](#systems)
+  - [Examples](#examples)
+  - [Usage](#usage)
+
 ## Systems
 - Miror
     > Reflects rays.

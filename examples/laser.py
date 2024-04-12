@@ -4,7 +4,7 @@ import time
 
 # Project modules
 from raysim import simulate
-from raysim.systems import Filter
+from raysim.systems import Mirror, Screen
 from raysim.photon import Photon
 import raysim.photon as ph
 import raysim.color as col
@@ -17,29 +17,28 @@ start_time = time.perf_counter()
 
 step_time = time.perf_counter()
 
-playground = (-10, -10, 15, 10)							# Playground limits
+playground = (-20, -10, 15, 10)							# Playground limits
 dx = .01												# Step size
 
-initial_rays = [												# Set rays
-	Photon((-10, 4.5-.5*i), 0, dx, wavelength=380 + 20*i, intensity=1)
-	for i in range(20)
+source = (-5, 0)										# Source position
+rays = [												# Set rays
+	Photon(source, 0, dx)
 ]
 
 systems = [												# Set systems
-	Filter((0, 2.5), 5, wavelength=475, bandwidth=150),
-	Filter((5, 2.5), 5, wavelength=500, bandwidth=50),
-	Filter((0, -2.5), 5, wavelength=700, bandwidth=150),
-	Filter((5, -2.5), 5, wavelength=725, bandwidth=50),
+	Mirror((-10, 0), 5),
+	Mirror((0, 0), 5, reflexion = 0.9),
+	Mirror((-5,2.5), 10, rot=np.pi/2),
+	Mirror((-5,-2.5), 10, rot=np.pi/2),
+	Screen((10, 0), 5, measure=True)
 ]
 
-print("--- Color Filters on rainbow ---")
-print("Source position: x = -10")
-print("Filters:")
-for s in systems:
-	print(f"   - {s.wavelength}nm ± {s.bandwidth/2}nm")
-print("-------------------------------")
-
 plt.figure()
+
+print("---- Laser simulation ----")
+print(f"Reflexion coefficient: {systems[1].reflexion}")
+print("--------------------------")
+
 
 print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
@@ -49,11 +48,7 @@ print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
 step_time = time.perf_counter()
 
-rays = simulate(initial_rays, systems, playground, dx = dx)
-
-print(f"✔ Simulation completed in {time.perf_counter() - step_time:.2f}s.")
-print(f"   {sum([len(r.positions) for r in rays])/(time.perf_counter() - step_time):.2f} step/s")
-print(f"   {len(rays)/(time.perf_counter() - step_time):.2f} rays/s")
+rays = simulate(rays, systems, playground, dx = dx, max_rays = 100)
 
 # ---------------------------------------------------------------------------- #
 #                                Show the scene                                #
@@ -71,8 +66,11 @@ for s in systems:
 		[s.pos[0] + np.sin(s.rot)*s.height/2, s.pos[0] - np.sin(s.rot)*s.height/2],
 		[s.pos[1] - np.cos(s.rot)*s.height/2, s.pos[1] + np.cos(s.rot)*s.height/2],
 		color=s.color, linestyle=s.style, linewidth=3)
+	
 
-plt.title("Color Filters on rainbow")
+plt.plot(source[0], source[1], '*')						# Plot source
+
+plt.title("Michelson Interferometer")					# Set title
 
 plt.axis('equal')										# Equal aspect ratio
 plt.grid()												# Grid on
@@ -82,8 +80,8 @@ plt.xticks(np.arange(playground[0], playground[2]+1, 5))	# Set x ticks
 plt.yticks(np.arange(playground[1], playground[3]+1, 5))	# Set y ticks
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
-print(f"   {len(rays)} rays plotted.")
-print(f"   {len(systems)} systems plotted.")
+print(f"   ✔ {len(rays)} rays plotted.")
+print(f"   ✔ {len(systems)} systems plotted.")
 
 # ---------------------------------------------------------------------------- #
 #                             End of the simulation                            #
@@ -91,4 +89,4 @@ print(f"   {len(systems)} systems plotted.")
 
 print(f"✅ Simulation completed in {time.perf_counter() - start_time:.2f}s.")
 
-plt.show()												# Show plot
+plt.show()									# Show plot

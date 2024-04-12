@@ -30,6 +30,10 @@ class Mirror:
 	--------
 	touched(photon)
 		Mirror interaction.
+	move(new_pos, rot=None)
+		Move the mirror.
+	reset()
+		Reset the mirror: not used.
 	"""
 	
 	def __init__(self, pos: tuple, height: float, rot: float = 0,
@@ -89,6 +93,28 @@ class Mirror:
 			photon.dir = np.pi + 2 * self.rot - photon.dir
 			photon.intensity *= self.reflexion
 
+	def move(self, new_pos: tuple[float], rot: float = None):
+		"""Move the mirror.
+
+		Parameters:
+		-----------
+		new_pos: tuple
+			new position
+		rot: float, optional
+			new rotation
+		"""
+		self.pos = new_pos
+		if rot != None:
+			self.rot = rot
+		self.hitbox = np.linspace(
+			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
+			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
+			int(self.height/.05))
+		
+	def reset(self):
+		"""Reset the mirror."""
+		pass
+
 class Screen:
 	"""Screen class.
 	Photons are stopped by the screen.
@@ -105,6 +131,10 @@ class Screen:
 		color in hex
 	line style: str
 		line style
+	measure: bool
+		Does the screen measure intensities
+	measures: dict
+		measures
 	hitbox: np.ndarray
 		hitbox
 
@@ -112,9 +142,13 @@ class Screen:
 	--------
 	touched(photon)
 		Screen interaction.
+	move(new_pos, rot=None)
+		Move the screen.
+	reset()
+		Reset the screen: clear measures.
 	"""
 
-	def __init__(self, pos: tuple, height: float, rot: float = 0):
+	def __init__(self, pos: tuple, height: float, rot: float = 0, measure: bool = False):
 		"""Initialize a screen object.
 
 		Parameters:
@@ -132,6 +166,9 @@ class Screen:
 
 		self.color = 'black'
 		self.style = '-'
+
+		self.measure = measure
+		self.measures = {}
 		
 		self.hitbox = np.linspace(
 			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] +
@@ -139,6 +176,9 @@ class Screen:
 			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] -
 				np.cos(self.rot)*self.height/2],
 			int(height/.05))
+		
+	def __str__(self):
+		return f"Screen at {self.pos}"
 		
 	def touched(self, photon: ph.Photon, rays: list = None):
 		"""Screen interaction.
@@ -149,9 +189,40 @@ class Screen:
 		photon: Photon
 			photon object
 		"""
-		photon.stopped = True		
+		photon.stopped = True
+		if self.measure:
+			if photon.wavelength not in self.measures:
+				self.measures[photon.wavelength] = 0
+			self.measures[photon.wavelength] += photon.intensity
 
+	def move(self, new_pos: tuple[float], rot: float = None):
+		"""Move the screen.
+
+		Parameters:
+		-----------
+		new_pos: tuple
+			new position
+		rot: float, optional
+			new rotation
+		"""
+		self.pos = new_pos
+		if rot != None:
+			self.rot = rot
+		self.hitbox = np.linspace(
+			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
+			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
+			int(self.height/.05))
 		
+	def reset(self):
+		"""Reset the screen."""
+		self.measures = {}
+
+	def print_measures(self):
+		"""Print measures."""
+		print(f"   {self} :")
+		print("      " + str(self.measures))
+
+
 class Filter:
 	"""Filter class.
 	Photons wavelength is filtered by the filter.
@@ -179,6 +250,10 @@ class Filter:
 	--------
 	touched(photon)
 		Screen interaction.
+	move(new_pos, rot=None)
+		Move the filter.
+	reset()
+		Reset the filter: not used.
 	"""
 
 	def __init__(self, pos: tuple, height: float, rot: float = 0,
@@ -213,6 +288,9 @@ class Filter:
 			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
 			int(height/.05))
 		
+	def __str__(self):
+		return f"Filter at {self.pos}"
+		
 	def touched(self, photon: ph.Photon, rays: list = None):
 		"""Filter interaction.
 		Photon wavelengths are filtered.
@@ -224,3 +302,25 @@ class Filter:
 		"""
 		if abs(photon.wavelength - self.wavelength) > self.bandwidth/2:
 			photon.stopped = True
+	
+	def move(self, new_pos: tuple[float], rot: float = None):
+		"""Move the filter.
+
+		Parameters:
+		-----------
+		new_pos: tuple
+			new position
+		rot: float, optional
+			new rotation
+		"""
+		self.pos = new_pos
+		if rot != None:
+			self.rot = rot
+		self.hitbox = np.linspace(
+			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
+			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
+			int(self.height/.05))
+		
+	def reset(self):
+		"""Reset the filter."""
+		pass

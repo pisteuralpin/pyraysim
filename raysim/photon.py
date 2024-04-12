@@ -71,8 +71,8 @@ class Photon:
 	move()
 		Move the photon in the direction of its direction.
 	"""
-	def __init__(self, pos: tuple, dir: float, dx: float = .01,
-		n: float = 1, intensity: float = 1, touching: any = None, wavelength: int = 650, color: tuple[int] = None):
+	def __init__(self, pos: tuple[float], dir: float, dx: float = .01,
+		n: float = 1, intensity: float = 1, touching: any = None, wavelength: int = 650, virtual_source: tuple[float] = None):
 			"""Initialize a photon object.
 
 		Parameters:
@@ -91,6 +91,11 @@ class Photon:
 			self.dx = dx
 			self.positions = [pos]
 			self.directions = [dir]
+			if virtual_source == None:
+				self.virtual_source = pos
+			else:
+				self.virtual_source = virtual_source
+			
 			self.n = n
 			self.intensity = intensity
 			self.stopped = False
@@ -98,10 +103,7 @@ class Photon:
 			
 			self.wavelength = wavelength
 			
-			if color == None:
-				self.color = col.wavelength_to_color(wavelength)
-			else:
-				self.color = color
+			self.color = col.wavelength_to_color(wavelength)
 	
 	def move(self):
 		"""Move the photon in the direction of its direction.
