@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib.pyplot import Axes
 import copy
 import time
 
@@ -86,7 +87,23 @@ def simulate(initial_rays: list[ph.Photon], systems: list[any], playground: tupl
 
 	return rays
 
-def display(ax, rays: list[ph.Photon], systems: list[any], playground: tuple, source: tuple):
+
+def display(ax: Axes, rays: list[ph.Photon], systems: list[any], playground: tuple, source: tuple):
+	"""Display the simulation.
+
+	Parameters:
+	-----------
+	ax: matplotlib.pyplot.Axes
+		axis
+	rays: list
+		list of rays
+	systems: list
+		list of systems
+	playground: tuple
+		playground limits
+	source: tuple
+		source position
+	"""
 	ax.clear()												# Clear axis
 	# Plot rays
 	for p in rays:

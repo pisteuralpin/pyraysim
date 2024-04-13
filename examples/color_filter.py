@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 # Project modules
-from raysim import simulate
+from raysim import *
 from raysim.systems import Filter
 from raysim.photon import Photon
 import raysim.photon as ph
@@ -61,25 +61,9 @@ print(f"   {len(rays)/(time.perf_counter() - step_time):.2f} rays/s")
 
 step_time = time.perf_counter()
 
-for p in rays:
-	plt.plot(np.array(p.positions)[:,0], np.array(p.positions)[:,1], 
-		color= col.rbg_to_hex(p.color, p.intensity))	# Plot ray
-
-# Plot systems
-for s in systems:
-	plt.plot(
-		[s.pos[0] + np.sin(s.rot)*s.height/2, s.pos[0] - np.sin(s.rot)*s.height/2],
-		[s.pos[1] - np.cos(s.rot)*s.height/2, s.pos[1] + np.cos(s.rot)*s.height/2],
-		color=s.color, linestyle=s.style, linewidth=3)
+display(plt.gca(), rays, systems, playground, (-10, 0))	# Display simulation
 
 plt.title("Color Filters on rainbow")
-
-plt.axis('equal')										# Equal aspect ratio
-plt.grid()												# Grid on
-plt.xlim(playground[0], playground[2])					# Set x limits
-plt.ylim(playground[1], playground[3])					# Set y limits
-plt.xticks(np.arange(playground[0], playground[2]+1, 5))	# Set x ticks
-plt.yticks(np.arange(playground[1], playground[3]+1, 5))	# Set y ticks
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
 print(f"   {len(rays)} rays plotted.")

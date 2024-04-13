@@ -32,7 +32,7 @@ import raysim.color as color
 
 playground = (-20, -10, 15, 10)
 
-rays = [
+initial_rays = [
     Photon((-0.5, 0), np.pi/2, wavelength=400),
     Photon((0, 0), np.pi/2, wavelength=500),
     Photon((0.5, 0), np.pi/2, wavelength=700),
@@ -44,20 +44,13 @@ systems = [
     Screen((10, 5), height=2, rot=0)
 ]
 
-simulate(rays, systems, playground, dx=.01)
+rays = simulate(initial_rays, systems, playground, dx=.01)
 
-for ray in rays:
-    plt.plot(np.array(ray.positions)[:,0], np.array(ray.positions)[:,1], 
-		color= color.rbg_to_hex(ray.color, ray.intensity))
+display(playground, systems, rays)
 
-for s in systems:
-	plt.plot(
-		[s.pos[0] + np.sin(s.rot)*s.height/2, s.pos[0] - np.sin(s.rot)*s.height/2],
-		[s.pos[1] - np.cos(s.rot)*s.height/2, s.pos[1] + np.cos(s.rot)*s.height/2],
-		color=s.color, linestyle=s.style, linewidth=3)
 
 plt.axis('equal')
 plt.show()
 ```
-#### Result:
+**Result:**
 > <br/><img src="./docs/img/example.png?raw=True" style="display: block; height: 20rem;" />
