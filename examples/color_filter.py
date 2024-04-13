@@ -4,7 +4,7 @@ import time
 
 # Project modules
 from raysim import *
-from raysim.systems import Filter
+from raysim.systems import Filter, Spectrometer
 from raysim.photon import Photon
 import raysim.photon as ph
 import raysim.color as col
@@ -30,14 +30,16 @@ systems = [												# Set systems
 	Filter((5, 2.5), 5, wavelength=500, bandwidth=50),
 	Filter((0, -2.5), 5, wavelength=700, bandwidth=150),
 	Filter((5, -2.5), 5, wavelength=725, bandwidth=50),
+	Spectrometer((10, 0), 10, passive=False)
 ]
 
 print("--- Color Filters on rainbow ---")
 print("Source position: x = -10")
 print("Filters:")
 for s in systems:
-	print(f"   - {s.wavelength}nm ± {s.bandwidth/2}nm")
-print("-------------------------------")
+	if isinstance(s, Filter):
+		print(f"   - {s.wavelength}nm ± {s.bandwidth/2}nm")
+print("--------------------------------")
 
 plt.figure()
 

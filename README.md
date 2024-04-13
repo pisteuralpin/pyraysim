@@ -1,24 +1,30 @@
-# pyraysim
+# PyRaySim
 Rays simulation in python.
 
-- [pyraysim](#pyraysim)
+- [PyRaySim](#pyraysim)
   - [Systems](#systems)
   - [Examples](#examples)
   - [Usage](#usage)
 
 ## Systems
 - Miror
-    > Reflects rays.
+  > Reflects rays.
 - Screen
-    > Stops rays.
+  > Stops rays.
 - Color filter
-    > Only lets rays of a certain color pass.
+  > Only lets rays of a certain color pass.
+- Instrumentation
+  > Measuring devices.
+  - Spectrometer
+    > Measures the wavelength of rays.
 
 ## Examples
 - Michelson interferometer
   <br/><img src="./docs/img/michelson.png?raw=True" style="display: block; height: 15rem;" />
 - Color filter
   <br/><img src="./docs/img/color_filter.png?raw=True" style="display: block; height: 15rem;" />
+- Laser
+  <br/><img src="./docs/img/laser.png?raw=True" style="display: block; height: 15rem;" />
 
 ## Usage
 ```python

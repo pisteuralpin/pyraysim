@@ -1,11 +1,62 @@
 import numpy as np
 import copy
+from json import dumps
 
 import raysim.geometry as geo
 import raysim.photon as ph
 import raysim.color as col
 
-class Mirror:
+# ---------------------------------------------------------------------------- #
+#                                    Systems                                   #
+# ---------------------------------------------------------------------------- #
+
+class System:
+	"""System class.
+	Abstract class for optical systems.
+
+	Attributes:
+	-----------
+	Methods:
+	--------
+	touched(photon)
+		System interaction.
+	move(new_pos, rot=None)
+		Move the system.
+	"""
+
+	def __init__(self, pos: tuple, height: float, rot: float = 0):
+		"""Initialize a system object."""
+		self.pos = pos
+		self.height = height
+		self.rot = rot
+		
+		self.hitbox = np.linspace(
+			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
+			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
+			int(height/.05))
+
+	def __str__(self):
+		return f"{type(self).__name__} at {self.pos}"
+
+	def move(self, new_pos: tuple[float], rot: float = None):
+		"""Move the system.
+
+		Parameters:
+		-----------
+		new_pos: tuple
+			new position
+		rot: float, optional
+			new rotation
+		"""
+		self.pos = new_pos
+		if rot != None:
+			self.rot = rot
+		self.hitbox = np.linspace(
+			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
+			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
+			int(self.height/.05))
+
+class Mirror(System):
 	"""Mirror class.
 	Photons are reflected by the mirror.
 
@@ -51,19 +102,12 @@ class Mirror:
 		reflexion: float
 			reflexion coefficient [0,1]
 		"""
-		self.pos = pos
-		self.height = height
-		self.rot = rot
+		super().__init__(pos, height, rot)
 
 		self.color = col.rbg_to_hex((0,12,135), reflexion**.5)
 		self.style = '-'
 		
 		self.reflexion = reflexion
-		
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
-			int(height/.05))
 
 	def touched(self, photon: ph.Photon, rays: list[ph.Photon]):
 		"""Mirror interaction.
@@ -93,29 +137,7 @@ class Mirror:
 			photon.dir = np.pi + 2 * self.rot - photon.dir
 			photon.intensity *= self.reflexion
 
-	def move(self, new_pos: tuple[float], rot: float = None):
-		"""Move the mirror.
-
-		Parameters:
-		-----------
-		new_pos: tuple
-			new position
-		rot: float, optional
-			new rotation
-		"""
-		self.pos = new_pos
-		if rot != None:
-			self.rot = rot
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
-			int(self.height/.05))
-		
-	def reset(self):
-		"""Reset the mirror."""
-		pass
-
-class Screen:
+class Screen(System):
 	"""Screen class.
 	Photons are stopped by the screen.
 
@@ -160,25 +182,13 @@ class Screen:
 		rot: float, optional (default=0)
 			rotation in radians
 		"""
-		self.pos = pos
-		self.height = height
-		self.rot = rot
-
+		super().__init__(pos, height, rot)
+		
 		self.color = 'black'
 		self.style = '-'
 
 		self.measure = measure
 		self.measures = {}
-		
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] +
-				np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] -
-				np.cos(self.rot)*self.height/2],
-			int(height/.05))
-		
-	def __str__(self):
-		return f"Screen at {self.pos}"
 		
 	def touched(self, photon: ph.Photon, rays: list = None):
 		"""Screen interaction.
@@ -194,24 +204,6 @@ class Screen:
 			if photon.wavelength not in self.measures:
 				self.measures[photon.wavelength] = 0
 			self.measures[photon.wavelength] += photon.intensity
-
-	def move(self, new_pos: tuple[float], rot: float = None):
-		"""Move the screen.
-
-		Parameters:
-		-----------
-		new_pos: tuple
-			new position
-		rot: float, optional
-			new rotation
-		"""
-		self.pos = new_pos
-		if rot != None:
-			self.rot = rot
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
-			int(self.height/.05))
 		
 	def reset(self):
 		"""Reset the screen."""
@@ -223,7 +215,7 @@ class Screen:
 		print("      " + str(self.measures))
 
 
-class Filter:
+class Filter(System):
 	"""Filter class.
 	Photons wavelength is filtered by the filter.
 
@@ -273,20 +265,13 @@ class Filter:
 		bandwidth: float, optional (default=50)
 			wavelength bandwidth - only keep photons between wavelength - bandwidth/2 and wavelength + bandwidth/2
 		"""
-		self.pos = pos
-		self.height = height
-		self.rot = rot
+		super().__init__(pos, height, rot)
 
 		self.color = col.rbg_to_hex(col.wavelength_to_color(wavelength))
 		self.style = 'dashed'
 
 		self.wavelength = wavelength
 		self.bandwidth = bandwidth
-
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
-			int(height/.05))
 		
 	def __str__(self):
 		return f"Filter at {self.pos}"
@@ -302,25 +287,103 @@ class Filter:
 		"""
 		if abs(photon.wavelength - self.wavelength) > self.bandwidth/2:
 			photon.stopped = True
+
+
+# ---------------------------------------------------------------------------- #
+#                                Instrumentation                               #
+# ---------------------------------------------------------------------------- #
+
+class Instrumentation(System):
+	"""Instrumentation class.
+	Abstract class for optical instrumentation.
+
+	Attributes:
+	-----------
+	Methods:
+	--------
+	touched(photon)
+		Instrumentation interaction.
+	move(new_pos, rot=None)
+		Move the instrumentation.
 	
-	def move(self, new_pos: tuple[float], rot: float = None):
-		"""Move the filter.
+	"""
+
+	def __init__(self, pos: tuple, height: float, rot: float = 0, passive: bool = True):
+		"""Initialize an instrumentation object."""
+		super().__init__(pos, height, rot)
+
+		self.passive = passive
+		self.measures = {}
+		
+	def print_measures(self):
+		"""Print measures."""
+		print(f"- {self}:")
+		print(dumps(self.measures, indent=4))
+		
+	def reset(self):
+		"""Reset the instrumentation."""
+		self.measures = {}
+
+
+class Spectrometer(Instrumentation):
+	"""Spectrometer class.
+	Photons wavelength is measured by the spectrometer.
+
+	Attributes:
+	-----------
+	pos: tuple
+		position
+	height: float
+		height
+	rot: float
+		rotation in radians
+	color: str
+		color
+	line style: str
+		line style
+	measures: dict
+		measures
+	hitbox: np.ndarray
+		hitbox
+
+	Methods:
+	--------
+	touched(photon)
+		Spectrometer interaction.
+	move(new_pos, rot=None)
+		Move the spectrometer.
+	reset()
+		Reset the spectrometer.
+	"""
+
+	def __init__(self, pos: tuple, height: float, rot: float = 0, passive: bool = True):
+		"""Initialize a spectrometer object.
 
 		Parameters:
 		-----------
-		new_pos: tuple
-			new position
-		rot: float, optional
-			new rotation
+		pos: tuple
+			position
+		height: float
+			height
+		rot: float, optional (default=0)
+			rotation in radians
 		"""
-		self.pos = new_pos
-		if rot != None:
-			self.rot = rot
-		self.hitbox = np.linspace(
-			[self.pos[0] - np.sin(self.rot)*self.height/2, self.pos[1] + np.cos(self.rot)*self.height/2],
-			[self.pos[0] + np.sin(self.rot)*self.height/2, self.pos[1] - np.cos(self.rot)*self.height/2],
-			int(self.height/.05))
+		super().__init__(pos, height, rot, passive)
 		
-	def reset(self):
-		"""Reset the filter."""
-		pass
+		self.color = 'black'
+		self.style = '-'
+		
+	def touched(self, photon: ph.Photon, rays: list = None):
+		"""Spectrometer interaction.
+		Photon wavelength is measured.
+		
+		Parameters:
+		-----------
+		photon: Photon
+			photon object
+		"""
+		if photon.wavelength not in self.measures:
+			self.measures[photon.wavelength] = 0
+		self.measures[photon.wavelength] += photon.intensity
+		if not self.passive:
+			photon.stopped = True

@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
 import numpy as np
 import time
 
 # Project modules
-from raysim import simulate, display
-from raysim.systems import Screen, Mirror
+from raysim import *
+from raysim.systems import Mirror, Screen
 from raysim.photon import Photon
 import raysim.photon as ph
 import raysim.color as col
@@ -21,25 +20,24 @@ step_time = time.perf_counter()
 playground = (-20, -10, 15, 10)							# Playground limits
 dx = .01												# Step size
 
-e = 2
-
-source = (-10, 0)										# Source position
-initial_rays = [										# Set rays
-	Photon(source, .1, dx)
+source = (-5, 0)										# Source position
+rays = [												# Set rays
+	Photon(source, 0, dx)
 ]
 
 systems = [												# Set systems
-	Mirror((0, 0), 10, rot = 3*np.pi/4, reflexion = 0.5),
-	Mirror((5+e, 0), 10, 0),
-	Mirror((0, 5), 10, np.pi/2),
-	Screen((2.5, -10), 10, rot = np.pi/2, measure=True),
+	Mirror((-10, 0), 5),
+	Mirror((0, 0), 5, reflexion = 0.9),
+	Mirror((-5,2.5), 10, rot=np.pi/2),
+	Mirror((-5,-2.5), 10, rot=np.pi/2),
+	Screen((10, 0), 5)
 ]
 
-print("--- Michelson Interferometer ---")
-print("Source position:", source)
-print("d = 2")
-print("Incidence angle: 0.1 rad")
-print("--------------------------------")
+plt.figure()
+
+print("---- Laser simulation ----")
+print(f"Reflexion coefficient: {systems[1].reflexion}")
+print("--------------------------")
 
 
 print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
@@ -50,7 +48,7 @@ print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
 step_time = time.perf_counter()
 
-rays = simulate(initial_rays, systems, playground, dx = dx)
+rays = simulate(rays, systems, playground, dx = dx, max_rays = 20)
 
 # ---------------------------------------------------------------------------- #
 #                                Show the scene                                #
@@ -58,23 +56,9 @@ rays = simulate(initial_rays, systems, playground, dx = dx)
 
 step_time = time.perf_counter()
 
-fig, ax = plt.subplots()								# Create figure and axis
+display(plt.gca(), rays, systems, playground, source)	# Display simulation
 
-display(ax, rays, systems, playground, source)			# Display the scene
-
-plt.title("Michelson Interferometer")					# Set title
-
-fig.subplots_adjust(bottom=0.25)
-e_ax = fig.add_axes([0.18, 0.1, 0.65, 0.03])
-e_slider = Slider(e_ax, 'e', 0, 5, valinit=2)
-
-def update(val):
-	e = e_slider.val
-	systems[1].move((5+e, 0))
-	rays = simulate(initial_rays, systems, playground, dx = dx, resimulate=True)
-	display(ax, rays, systems, playground, source)
-
-e_slider.on_changed(update)
+plt.title("Laser")										# Set title
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
 print(f"   ✔ {len(rays)} rays plotted.")

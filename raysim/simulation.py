@@ -6,8 +6,9 @@ import time
 import raysim.photon as ph
 import raysim.geometry as geo
 import raysim.color as col
+import raysim.systems as sys
 
-def simulate(initial_rays: list[ph.Photon], systems: list[any], playground: tuple, dx: float = 0.01, max_iterations: int = 10000, max_rays: int = 20, resimulate: bool = False, print_status: bool = True, print_measures: bool = True, print_stats: bool = True) -> list[ph.Photon]:
+def simulate(initial_rays: list[ph.Photon], systems: list[sys.System], playground: tuple, dx: float = 0.01, max_iterations: int = 10000, max_rays: int = 20, resimulate: bool = False, print_status: bool = True, print_measures: bool = True, print_stats: bool = True) -> list[ph.Photon]:
 	"""Simulate the rays.
 
 	Parameters:
@@ -48,13 +49,14 @@ def simulate(initial_rays: list[ph.Photon], systems: list[any], playground: tupl
 		print("⚙️  Resimulating...")
 
 	# Reset systems
-	for sys in systems:
-		sys.reset()
+	for s in systems:
+		if isinstance(s, sys.Instrumentation):
+			s.reset()
 
 	# Simulate rays
 	for p in rays:
 		p.dx = dx
-		while not p.stopped and len(p.positions) < max_iterations:
+		while not p.stopped and len(p.positions) <= max_iterations:
 			p.move()
 			if ph.has_reached_sys(p, systems) and p.touching == None:
 				p.touching = ph.touched_sys(p, systems)
@@ -68,13 +70,11 @@ def simulate(initial_rays: list[ph.Photon], systems: list[any], playground: tupl
 
 	# Print measures
 	if print_measures:
-		measures = False
-		for sys in systems:
-			if hasattr(sys, 'measure') and sys.measure:
-				if not measures:
-					print("Measures:")
-				measures = True
-				sys.print_measures()
+		for s in systems:
+			if isinstance(s, sys.Instrumentation):
+				print("--- Measures ---")
+				s.print_measures()
+				print("----------------")
 
 	if print_status:
 		if resimulate:
