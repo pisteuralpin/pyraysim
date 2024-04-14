@@ -6,8 +6,7 @@ import time
 from raysim import *
 from raysim.systems import Mirror, Screen
 from raysim.photon import Photon
-import raysim.photon as ph
-import raysim.color as col
+from raysim.source import Source
 
 start_time = time.perf_counter()
 
@@ -20,9 +19,13 @@ step_time = time.perf_counter()
 playground = (-20, -10, 15, 10)							# Playground limits
 dx = .01												# Step size
 
-source = (-5, 0)										# Source position
+sources = [												# Set sources
+	Source((-5, 0), 575, 1e-3)
+]
+
+
 rays = [												# Set rays
-	Photon(source, 0, dx)
+	Photon(sources[0], dir=0)
 ]
 
 systems = [												# Set systems
@@ -32,8 +35,6 @@ systems = [												# Set systems
 	Mirror((-5,-2.5), 10, rot=np.pi/2),
 	Screen((10, 0), 5)
 ]
-
-plt.figure()
 
 print("---- Laser simulation ----")
 print(f"Reflexion coefficient: {systems[1].reflexion}")
@@ -56,9 +57,7 @@ rays = simulate(rays, systems, playground, dx = dx, max_rays = 20)
 
 step_time = time.perf_counter()
 
-display(plt.gca(), rays, systems, playground, source)	# Display simulation
-
-plt.title("Laser")										# Set title
+display(rays, systems, playground, sources, title="Laser")			# Display simulation
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
 print(f"   ✔ {len(rays)} rays plotted.")
@@ -70,4 +69,4 @@ print(f"   ✔ {len(systems)} systems plotted.")
 
 print(f"✅ Simulation completed in {time.perf_counter() - start_time:.2f}s.")
 
-plt.show()									# Show plot
+plt.show()												# Show plot

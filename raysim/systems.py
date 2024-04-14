@@ -2,7 +2,6 @@ import numpy as np
 import copy
 from json import dumps
 
-import raysim.geometry as geo
 from raysim.photon import Photon
 import raysim.color as col
 

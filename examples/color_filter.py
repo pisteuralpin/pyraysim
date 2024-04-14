@@ -6,8 +6,6 @@ import time
 from raysim import *
 from raysim.systems import Filter, Spectrometer
 from raysim.photon import Photon
-import raysim.photon as ph
-import raysim.color as col
 
 start_time = time.perf_counter()
 
@@ -20,8 +18,8 @@ step_time = time.perf_counter()
 playground = (-10, -10, 15, 10)							# Playground limits
 dx = .01												# Step size
 
-initial_rays = [												# Set rays
-	Photon((-10, 4.5-.5*i), 0, dx, wavelength=380 + 20*i, intensity=1)
+initial_rays = [										# Set rays
+	Photon((-10, 4.5-.5*i), dir=0, wavelength=380 + 20*i, intensity=1)
 	for i in range(20)
 ]
 
@@ -40,8 +38,6 @@ for s in systems:
 	if isinstance(s, Filter):
 		print(f"   - {s.wavelength}nm ± {s.bandwidth/2}nm")
 print("--------------------------------")
-
-plt.figure()
 
 print(f"✔ Simulation initiated in {time.perf_counter() - step_time:.2f}s.")
 
@@ -63,9 +59,7 @@ print(f"   {len(rays)/(time.perf_counter() - step_time):.2f} rays/s")
 
 step_time = time.perf_counter()
 
-display(plt.gca(), rays, systems, playground, (-10, 0))	# Display simulation
-
-plt.title("Color Filters on rainbow")
+display(rays, systems, playground, title="Color Filters")	# Display simulation
 
 print(f"✔ Simulation plotted in {time.perf_counter() - step_time:.2f}s.")
 print(f"   {len(rays)} rays plotted.")

@@ -1,14 +1,15 @@
 import numpy as np
-from matplotlib.pyplot import Axes
+from matplotlib.pyplot import Axes, subplots
 import copy
 import time
 
 import raysim.photon as ph
 import raysim.geometry as geo
 import raysim.color as col
-import raysim.systems as sys
+from raysim.systems import System, Instrumentation
+import raysim.source as src
 
-def simulate(initial_rays: list[ph.Photon], systems: list[sys.System], playground: tuple, dx: float = 0.01, max_iterations: int = 10000, max_rays: int = 20, resimulate: bool = False, print_status: bool = True, print_measures: bool = True, print_stats: bool = True) -> list[ph.Photon]:
+def simulate(initial_rays: list[ph.Photon], systems: list[System], playground: tuple, dx: float = 0.01, max_iterations: int = 10000, max_rays: int = 20, resimulate: bool = False, print_status: bool = True, print_measures: bool = True, print_stats: bool = True) -> list[ph.Photon]:
 	"""Simulate the rays.
 
 	Parameters:
@@ -50,7 +51,7 @@ def simulate(initial_rays: list[ph.Photon], systems: list[sys.System], playgroun
 
 	# Reset systems
 	for s in systems:
-		if isinstance(s, sys.Instrumentation):
+		if isinstance(s, Instrumentation):
 			s.reset()
 
 	# Simulate rays
@@ -71,7 +72,7 @@ def simulate(initial_rays: list[ph.Photon], systems: list[sys.System], playgroun
 	# Print measures
 	if print_measures:
 		for s in systems:
-			if isinstance(s, sys.Instrumentation):
+			if isinstance(s, Instrumentation):
 				print("--- Measures ---")
 				s.print_measures()
 				print("----------------")
@@ -88,13 +89,11 @@ def simulate(initial_rays: list[ph.Photon], systems: list[sys.System], playgroun
 	return rays
 
 
-def display(ax: Axes, rays: list[ph.Photon], systems: list[any], playground: tuple, source: tuple):
+def display(rays: list[ph.Photon], systems: list[any], playground: tuple, sources: list[src.Source] | tuple[float] = None, ax: Axes = None, title: str = None) -> None:
 	"""Display the simulation.
 
 	Parameters:
 	-----------
-	ax: matplotlib.pyplot.Axes
-		axis
 	rays: list
 		list of rays
 	systems: list
@@ -103,8 +102,13 @@ def display(ax: Axes, rays: list[ph.Photon], systems: list[any], playground: tup
 		playground limits
 	source: tuple
 		source position
+	ax: matplotlib.pyplot.Axes object, optional (default = subplots()[1])
+		axis
 	"""
-	ax.clear()												# Clear axis
+	if ax == None:
+		fig, ax = subplots(num=title)					# Create figure and axis
+	
+	ax.clear()											# Clear axis
 	# Plot rays
 	for p in rays:
 		ax.plot(np.array(p.positions)[:,0], np.array(p.positions)[:,1], 
@@ -118,11 +122,16 @@ def display(ax: Axes, rays: list[ph.Photon], systems: list[any], playground: tup
 			color = s.color, linestyle = s.style
 		)
 
-	ax.plot(source[0], source[1], '*')						# Plot source
+	if sources != None and isinstance(sources, list):
+		sources_pos = np.array([s.position for s in sources])
+		ax.plot(sources_pos[:,0], sources_pos[:,1], '*', color = 'black')	# Plot sources
+	elif sources != None and isinstance(sources, tuple):
+		ax.plot(sources[0], sources[1], '*', color = 'black')
 
-	ax.axis('equal')										# Equal aspect ratio
-	ax.grid()												# Grid on
-	ax.set_xlim(playground[0], playground[2])					# Set x limits
-	ax.set_ylim(playground[1], playground[3])					# Set y limits
+	ax.axis('equal')									# Equal aspect ratio
+	ax.grid()											# Grid on
+	ax.set_xlim(playground[0], playground[2])			# Set x limits
+	ax.set_ylim(playground[1], playground[3])			# Set y limits
 	ax.set_xticks(np.arange(playground[0], playground[2]+1, 5))	# Set x ticks
 	ax.set_yticks(np.arange(playground[1], playground[3]+1, 5))	# Set y ticks
+	ax.set_title(title)									# Set title

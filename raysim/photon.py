@@ -2,6 +2,7 @@ import numpy as np
 
 import raysim.geometry as geo
 import raysim.color as col
+from raysim.source import Source
 	
 def has_reached_sys(photon: any, systems: list[any]) -> bool:
 	"""Check if the photon has reached a system.
@@ -71,7 +72,7 @@ class Photon:
 	move()
 		Move the photon in the direction of its direction.
 	"""
-	def __init__(self, pos: tuple[float], dir: float, dx: float = .01,
+	def __init__(self, source: Source | tuple[float], pos: tuple[float] = None, dir: float = 0, dx: float = .01,
 		n: float = 1, intensity: float = 1, touching: any = None, wavelength: int = 650, virtual_source: tuple[float] = None):
 			"""Initialize a photon object.
 
@@ -86,13 +87,25 @@ class Photon:
 		n: float, optional (default=1)
 			refractive index
 		"""
-			self.pos = pos
 			self.dir = dir
+
+			if isinstance(source, Source):
+				self.source = source
+			elif isinstance(source, tuple):
+				self.source = Source(source, wavelength, intensity)
+			else:
+				raise ValueError("Source must be a Source or a tuple.")
+			
+			if pos == None:
+				self.pos = self.source.position
+			else:
+				self.pos = pos
+
 			self.dx = dx
-			self.positions = [pos]
-			self.directions = [dir]
+			self.positions = [self.pos]
+			self.directions = [self.dir]
 			if virtual_source == None:
-				self.virtual_source = pos
+				self.virtual_source = self.pos
 			else:
 				self.virtual_source = virtual_source
 			
@@ -104,6 +117,16 @@ class Photon:
 			self.wavelength = wavelength
 			
 			self.color = col.wavelength_to_color(wavelength)
+	
+	def __str__(self) -> str:
+		"""Return the string representation of the photon.
+		"""
+		return f"Photon at {self.pos}"
+	
+	def __repr__(self) -> str:
+		"""Return the string representation of the photon.
+		"""
+		return f"Photon(pos={self.pos}, dir={self.dir}, dx={self.dx}, n={self.n}, intensity={self.intensity}, touching={self.touching}, wavelength={self.wavelength})"
 	
 	def move(self):
 		"""Move the photon in the direction of its direction.

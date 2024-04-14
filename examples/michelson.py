@@ -5,10 +5,8 @@ import time
 
 # Project modules
 from raysim import simulate, display
-from raysim.systems import Screen, Mirror
+from raysim.systems import Mirror
 from raysim.photon import Photon
-import raysim.photon as ph
-import raysim.color as col
 
 start_time = time.perf_counter()
 
@@ -25,7 +23,7 @@ e = 2
 
 source = (-10, 0)										# Source position
 initial_rays = [										# Set rays
-	Photon(source, .1, dx)
+	Photon(source, dir=.1)
 ]
 
 systems = [												# Set systems
@@ -57,15 +55,14 @@ rays = simulate(initial_rays, systems, playground, dx = dx)
 
 step_time = time.perf_counter()
 
-fig, ax = plt.subplots()								# Create figure and axis
+fig, ax = plt.subplots(num="Michelson Interferometer")	# Create figure and axis
 
-display(ax, rays, systems, playground, source)			# Display the scene
+display(rays, systems, playground,
+		sources=source, ax=ax, title="Michelson Interferometer")	# Display the scene
 
-# ax.plot((5, systems[1].pos[0]), (0, 0), 'k--')			# Plot the path difference
-ax.annotate("e", xy=(5 + (systems[1].pos[0] - 5)/2 - .3, .5))	# Annotate the path difference
-ax.annotate("", xy=(4.9, 0), xytext=(systems[1].pos[0]+.1, 0), arrowprops=dict(arrowstyle="<->"))	# Annotate the path difference
-
-plt.title("Michelson Interferometer")					# Set title
+ax.annotate("e", xy=(5 + (systems[1].pos[0] - 5)/2 - .3, .5))		# Annotate the path difference
+ax.annotate("", xy=(4.9, 0),
+			xytext=(systems[1].pos[0]+.1, 0), arrowprops=dict(arrowstyle="<->"))						# Annotate the path difference
 
 fig.subplots_adjust(bottom=0.25)
 e_ax = fig.add_axes([0.18, 0.1, 0.65, 0.03])
@@ -75,9 +72,11 @@ def update(val):
 	e = e_slider.val
 	systems[1].move((5+e, 0))
 	rays = simulate(initial_rays, systems, playground, dx = dx, resimulate=True)
-	display(ax, rays, systems, playground, source)
+	display(rays, systems, playground,
+		 sources=source, ax=ax, title="Michelson Interferometer")
 	ax.annotate("e", xy=(5 + (systems[1].pos[0] - 5)/2 - .3, .5))	# Annotate the path difference
-	ax.annotate("", xy=(4.9, 0), xytext=(systems[1].pos[0]+.1, 0), arrowprops=dict(arrowstyle="<->"))	# Annotate the path difference
+	ax.annotate("", xy=(4.9, 0),
+			 xytext=(systems[1].pos[0]+.1, 0), arrowprops=dict(arrowstyle="<->"))						# Annotate the path difference
 
 e_slider.on_changed(update)
 
@@ -91,4 +90,4 @@ print(f"   ✔ {len(systems)} systems plotted.")
 
 print(f"✅ Simulation completed in {time.perf_counter() - start_time:.2f}s.")
 
-plt.show()									# Show plot
+plt.show()												# Show plot
