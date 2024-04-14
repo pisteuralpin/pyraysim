@@ -3,7 +3,7 @@ import copy
 from json import dumps
 
 import raysim.geometry as geo
-import raysim.photon as ph
+from raysim.photon import Photon
 import raysim.color as col
 
 # ---------------------------------------------------------------------------- #
@@ -16,6 +16,15 @@ class System:
 
 	Attributes:
 	-----------
+	pos: tuple(float, float)
+		position
+	height: float
+		height
+	rot: float
+		rotation in radians
+	hitbox: np.ndarray
+		hitbox
+
 	Methods:
 	--------
 	touched(photon)
@@ -25,7 +34,17 @@ class System:
 	"""
 
 	def __init__(self, pos: tuple, height: float, rot: float = 0):
-		"""Initialize a system object."""
+		"""Initialize a system object.
+		
+		Parameters:
+		-----------
+		pos: tuple
+			position
+		height: float
+			height
+		rot: float, optional (default=0)
+			rotation in radians
+		"""
 		self.pos = pos
 		self.height = height
 		self.rot = rot
@@ -83,8 +102,6 @@ class Mirror(System):
 		Mirror interaction.
 	move(new_pos, rot=None)
 		Move the mirror.
-	reset()
-		Reset the mirror: not used.
 	"""
 	
 	def __init__(self, pos: tuple, height: float, rot: float = 0,
@@ -109,7 +126,10 @@ class Mirror(System):
 		
 		self.reflexion = reflexion
 
-	def touched(self, photon: ph.Photon, rays: list[ph.Photon]):
+	def __repr__(self) -> str:
+		return f"Mirror(pos={self.pos}, height={self.height}, rot={self.rot}, reflexion={self.reflexion})"
+
+	def touched(self, photon: Photon, rays: list[Photon]):
 		"""Mirror interaction.
 		Photon is reflected by the mirror.
 
@@ -153,10 +173,6 @@ class Screen(System):
 		color in hex
 	line style: str
 		line style
-	measure: bool
-		Does the screen measure intensities
-	measures: dict
-		measures
 	hitbox: np.ndarray
 		hitbox
 
@@ -166,11 +182,9 @@ class Screen(System):
 		Screen interaction.
 	move(new_pos, rot=None)
 		Move the screen.
-	reset()
-		Reset the screen: clear measures.
 	"""
 
-	def __init__(self, pos: tuple, height: float, rot: float = 0, measure: bool = False):
+	def __init__(self, pos: tuple, height: float, rot: float = 0):
 		"""Initialize a screen object.
 
 		Parameters:
@@ -187,10 +201,10 @@ class Screen(System):
 		self.color = 'black'
 		self.style = '-'
 
-		self.measure = measure
-		self.measures = {}
+	def __repr__(self) -> str:
+		return f"Screen(pos={self.pos}, height={self.height}, rot={self.rot})"
 		
-	def touched(self, photon: ph.Photon, rays: list = None):
+	def touched(self, photon: Photon, rays: list = None):
 		"""Screen interaction.
 		Photon is stopped.
 		
@@ -200,19 +214,6 @@ class Screen(System):
 			photon object
 		"""
 		photon.stopped = True
-		if self.measure:
-			if photon.wavelength not in self.measures:
-				self.measures[photon.wavelength] = 0
-			self.measures[photon.wavelength] += photon.intensity
-		
-	def reset(self):
-		"""Reset the screen."""
-		self.measures = {}
-
-	def print_measures(self):
-		"""Print measures."""
-		print(f"   {self} :")
-		print("      " + str(self.measures))
 
 
 class Filter(System):
@@ -244,8 +245,6 @@ class Filter(System):
 		Screen interaction.
 	move(new_pos, rot=None)
 		Move the filter.
-	reset()
-		Reset the filter: not used.
 	"""
 
 	def __init__(self, pos: tuple, height: float, rot: float = 0,
@@ -273,10 +272,10 @@ class Filter(System):
 		self.wavelength = wavelength
 		self.bandwidth = bandwidth
 		
-	def __str__(self):
-		return f"Filter at {self.pos}"
+	def __repr__(self) -> str:
+		return f"Filter(pos={self.pos}, height={self.height}, rot={self.rot}, wavelength={self.wavelength}, bandwidth={self.bandwidth})"
 		
-	def touched(self, photon: ph.Photon, rays: list = None):
+	def touched(self, photon: Photon, rays: list = None):
 		"""Filter interaction.
 		Photon wavelengths are filtered.
 		
@@ -299,6 +298,19 @@ class Instrumentation(System):
 
 	Attributes:
 	-----------
+	pos: tuple
+		position
+	height: float
+		height
+	rot: float
+		rotation in radians
+	measures: dict
+		measures
+	hitbox: np.ndarray
+		hitbox
+	passive: bool
+		is the instrumentation passive
+
 	Methods:
 	--------
 	touched(photon)
@@ -345,6 +357,8 @@ class Spectrometer(Instrumentation):
 		measures
 	hitbox: np.ndarray
 		hitbox
+	passive: bool
+		is the spectrometer passive
 
 	Methods:
 	--------
@@ -367,13 +381,18 @@ class Spectrometer(Instrumentation):
 			height
 		rot: float, optional (default=0)
 			rotation in radians
+		passive: bool, optional (default=True)
+			is the spectrometer passive
 		"""
 		super().__init__(pos, height, rot, passive)
 		
 		self.color = 'black'
 		self.style = '-'
+	
+	def __repr__(self) -> str:
+		return f"Spectrometer(pos={self.pos}, height={self.height}, rot={self.rot}, passive={self.passive})"
 		
-	def touched(self, photon: ph.Photon, rays: list = None):
+	def touched(self, photon: Photon, rays: list = None):
 		"""Spectrometer interaction.
 		Photon wavelength is measured.
 		
